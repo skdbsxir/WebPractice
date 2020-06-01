@@ -1,0 +1,109 @@
+<!DOCTYPE HTML>
+<meta charset="utf-8">
+<html>
+    <head>
+        <title> 첫 테스트 페이지 </title>
+        <!--
+            환영인사 페이지입니다
+        -->
+        <script src="colors.js"></script>
+        <script src="https://apis.google.com/js/platform.js" async defer></script>
+        <script src="https://apis.google.com/js/platform.js?onload=init" async defer></script>
+        <script>
+            function checkLoginStatus(){
+                var loginBtn = document.querySelector('#loginBtn');
+                var nameTxt = document.querySelector('#name');
+                    if(gauth.isSignedIn.get()){
+                        console.log('logined');
+                        loginBtn.value = 'Logout';
+                        var profile = gauth.currentUser.get().getBasicProfile();
+                        console.log(profile.getName());
+                        nameTxt.innerHTML = 'Welcome <strong>' + profile.getName() + '</strong> ';
+                    }else{
+                        console.log('logouted');
+                        loginBtn.value = 'Login';
+                        nameTxt.innerHTML = '';
+                    }
+            }
+            function init() {
+                console.log('init')
+                gapi.load('auth2', function() {
+                    console.log('auth2')
+                    window.gauth = gapi.auth2.init({
+                        client_id : '336606185352-6vjoh9qagpvbfj2ul2qlmgg6d4mmsgkt.apps.googleusercontent.com'
+                    })
+                    gauth.then(function(){
+                        console.log('googleAuth success');
+                        checkLoginStatus();
+                    }, function(){
+                        console.log('googleAuth fail');
+                    });
+                });
+            }
+        </script>
+    </head>
+
+    <body>
+        <span id="name"></span>
+        <input type="button" id="loginBtn" value="checking..." onClick="
+            if(this.value === 'Login'){
+                gauth.signIn().then(function(){
+                    console.log('gauth.signIn()');
+                    checkLoginStatus();
+                });
+            }else{
+                gauth.signOut().then(function(){
+                    console.log('gauth.signOut()');
+                    checkLoginStatus();
+                });
+            }
+        ">
+        <h1><a href="#!welcome">대문입니다</a></h1>
+        <input type="button" value="어둡게" onclick="buttonHandler(this)">
+        <ol id="nav">
+
+        </ol>
+        <article> </article>
+        <script>
+            function fetchPage(name){
+                fetch(name).then(function(response){
+                        response.text().then(function(text){
+                            document.querySelector('article').innerHTML = text;
+                         })
+                     })
+            }
+            if(location.hash){
+                fetchPage(location.hash.substr(2));
+            }  else{
+                fetchPage('welcome');
+            }
+            fetch('list').then(function(response){
+                response.text().then(function(text){
+                    //<li><a href="#!html" onclick="fetchPage('html')">첫번째 연습</a></li>
+                    var items = text.split(',');
+                    var i = 0;
+                    var tags = '';
+                    while(i < items.length){
+                        var item = items[i];
+                        var tag = '<li><a href="#!' + item + '"onclick="fetchPage(\''+ item +'\')">' + item + '</a></li>';
+                        tags = tags + tag;
+                        i = i + 1;
+                    }
+                    console.log(items);
+                    document.querySelector('#nav').innerHTML = tags;
+                })
+            })
+        </script>
+
+        <!--
+        <h2>대문페이지에요</h2> 
+        <p>안녕하세요 <u>반가워요</u> <strong>잘있어요</strong> 다시만나요</p>
+        <br><a href="https://gall.dcinside.com/" target="_blank" title="DCINSIDE로 가요"> 디시로 가볼까요 </a>
+        <img src="1.png" width="60">
+        <p style = "margin-top:20px">아침해가 뜨면 제일 먼저 하는일은 이불을 개고 일어나는 것이다. </p>
+        하지만 너무 졸린탓에, 다시 이불을 덮고 눕는다.
+        -->
+
+        
+    </body>
+</html>
